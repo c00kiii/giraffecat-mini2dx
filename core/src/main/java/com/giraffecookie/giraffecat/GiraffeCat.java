@@ -2,13 +2,12 @@ package com.giraffecookie.giraffecat;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import org.mini2Dx.core.engine.geom.CollisionBox;
-import org.mini2Dx.core.engine.geom.CollisionCircle;
+import org.mini2Dx.core.graphics.Animation;
 import org.mini2Dx.core.graphics.Graphics;
 
 public class GiraffeCat {
@@ -36,9 +35,10 @@ public class GiraffeCat {
     Vector2 accelerationVector;
     Vector2 playerFacingDirection;
 
-    GameSprite standingRight;
-    GameSprite standingLeft;
-    GameSprite sprite;
+    Animation standingRight;
+    Animation standingLeft;
+    Animation jumpingRight;
+    Animation sprite;
 
     float runAcc = RUNACC;
     float friction = FRICTION;
@@ -49,9 +49,15 @@ public class GiraffeCat {
         accelerationVector = new Vector2();
         cc = new CollisionBox(120, 80, 36, 36);
         physics = new GFCPhysics(cc);
-        standingRight = new GameSprite(ImgPath.GFCRR4, 64, 64);
-        standingLeft = new GameSprite(ImgPath.GFCLR4, 64, 64);
-        sprite = standingRight;
+        standingRight = Animator.loadSprite(ImgPath.GFCRR4, 64, 64);
+        standingLeft = Animator.loadSprite(ImgPath.GFCLR4, 64, 64);
+        jumpingRight = Animator.loadSprite(
+                ImgPath.GFCJR,
+                64,
+                64,
+                0.1f,
+                3);
+        sprite = jumpingRight;
         facing = Facing.RIGHT;
         js = JumpState.FALLING;
         //cc.forceTo(120, 80);
@@ -68,7 +74,6 @@ public class GiraffeCat {
     public void update(float delta) {
         //Gravity
         addForce(0, Constants.GRAVITY * delta);
-
 
         //jump state
         if (js != JumpState.JUMPING) {
@@ -112,11 +117,14 @@ public class GiraffeCat {
                 addForce(-1*Math.signum(physics.velocity.x)*friction*delta, 0);
 
         physics.update(delta);
+        sprite.update(delta);
     }
 
     private void startJump() {
         js = JumpState.JUMPING;
         jsTime = TimeUtils.nanoTime();
+        jumpingRight.restart();
+        sprite = jumpingRight;
         continueJump();
     }
 
@@ -155,10 +163,10 @@ public class GiraffeCat {
     }
 
     public void render(Graphics g) {
-        //cc.draw(g);
-        sprite.getAnimation().draw(g,
-                cc.getX() - standingRight.getFrameWidth() / 4,
-                cc.getY() - standingRight.getFrameHeight() / 4);
+        cc.draw(g);
+        sprite.draw(g,
+                cc.getX() - sprite.getCurrentFrame().getWidth() / 4,
+                cc.getY() - sprite.getCurrentFrame().getHeight() / 4);
         g.drawString(""+Gdx.input.isKeyPressed(Input.Keys.RIGHT), 0, 0);
     }
 }
