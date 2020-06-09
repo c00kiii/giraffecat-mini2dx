@@ -26,6 +26,7 @@ public class GiraffeCat {
     final static String TAG = GiraffeCat.class.getName();
     final static float RUNACC = 5;
     final static float FRICTION = 1f;
+    final static float JUMP_FRAME_DURATION = 0.1f;
 
     Facing facing;
     JumpState js;
@@ -38,6 +39,7 @@ public class GiraffeCat {
     Animation standingRight;
     Animation standingLeft;
     Animation jumpingRight;
+    Animation jumpingLeft;
     Animation sprite;
 
     float runAcc = RUNACC;
@@ -55,7 +57,13 @@ public class GiraffeCat {
                 ImgPath.GFCJR,
                 64,
                 64,
-                0.1f,
+                JUMP_FRAME_DURATION,
+                3);
+        jumpingLeft = Animator.loadSprite(
+                ImgPath.GFCJL,
+                64,
+                64,
+                JUMP_FRAME_DURATION,
                 3);
         sprite = jumpingRight;
         facing = Facing.RIGHT;
@@ -123,8 +131,17 @@ public class GiraffeCat {
     private void startJump() {
         js = JumpState.JUMPING;
         jsTime = TimeUtils.nanoTime();
-        jumpingRight.restart();
-        sprite = jumpingRight;
+        switch (facing){
+            case RIGHT:
+                jumpingRight.restart();
+                sprite = jumpingRight;
+                break;
+            case LEFT:
+                jumpingLeft.restart();
+                sprite = jumpingLeft;
+                break;
+        }
+
         continueJump();
     }
 
@@ -146,14 +163,45 @@ public class GiraffeCat {
     }
 
     public void moveLeft(float delta){
+
+        switch (js){
+            case JUMPING:
+                //If we change facing in the middle of jumping
+                if (facing == Facing.RIGHT) {
+                    jumpingLeft.restart();
+                    jumpingLeft.update(jumpingLeft.getCurrentFrameIndex() * JUMP_FRAME_DURATION);
+                    sprite = jumpingLeft;
+                }
+                break;
+            case FALLING:
+                break;
+            case GROUNDED:
+                sprite = standingLeft;
+                break;
+        }
+        facing = Facing.LEFT;
         playerFacingDirection.set(-1, 0);
-        sprite = standingLeft;
         addForce(playerFacingDirection.x * runAcc * delta, 0);
     }
 
     public void moveRight(float delta){
+
+        switch (js){
+            case JUMPING:
+                if (facing == Facing.LEFT) {
+                    jumpingRight.restart();
+                    jumpingRight.update(jumpingLeft.getCurrentFrameIndex() * JUMP_FRAME_DURATION);
+                    sprite = jumpingRight;
+                }
+                break;
+            case FALLING:
+                break;
+            case GROUNDED:
+                sprite = standingRight;
+                break;
+        }
+        facing = Facing.RIGHT;
         playerFacingDirection.set(1, 0);
-        sprite = standingRight;
         addForce(playerFacingDirection.x * runAcc * delta, 0);
     }
 
