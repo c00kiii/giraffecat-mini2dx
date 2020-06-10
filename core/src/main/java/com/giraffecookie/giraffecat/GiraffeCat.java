@@ -27,6 +27,7 @@ public class GiraffeCat {
     final static float RUNACC = 5;
     final static float FRICTION = 1f;
     final static float JUMP_FRAME_DURATION = 0.1f;
+    final static float RUN_FRAME_DURATION = 0.05f;
 
     Facing facing;
     JumpState js;
@@ -36,8 +37,8 @@ public class GiraffeCat {
     Vector2 accelerationVector;
     Vector2 playerFacingDirection;
 
-    Animation standingRight;
-    Animation standingLeft;
+    Animation runningRight;
+    Animation runningLeft;
     Animation jumpingRight;
     Animation jumpingLeft;
     Animation sprite;
@@ -51,8 +52,20 @@ public class GiraffeCat {
         accelerationVector = new Vector2();
         cc = new CollisionBox(120, 80, 36, 36);
         physics = new GFCPhysics(cc);
-        standingRight = Animator.loadSprite(ImgPath.GFCRR4, 64, 64);
-        standingLeft = Animator.loadSprite(ImgPath.GFCLR4, 64, 64);
+        runningRight = Animator.loadSprite(
+                ImgPath.GFCRR,
+                64,
+                64,
+                RUN_FRAME_DURATION,
+                8);
+        runningRight.setLooping(true);
+        runningLeft = Animator.loadSprite(
+                ImgPath.GFCLR,
+                64,
+                64,
+                RUN_FRAME_DURATION,
+                8);
+        runningLeft.setLooping(true);
         jumpingRight = Animator.loadSprite(
                 ImgPath.GFCJR,
                 64,
@@ -176,7 +189,7 @@ public class GiraffeCat {
             case FALLING:
                 break;
             case GROUNDED:
-                sprite = standingLeft;
+                sprite = runningLeft;
                 break;
         }
         facing = Facing.LEFT;
@@ -197,7 +210,7 @@ public class GiraffeCat {
             case FALLING:
                 break;
             case GROUNDED:
-                sprite = standingRight;
+                sprite = runningRight;
                 break;
         }
         facing = Facing.RIGHT;
@@ -213,8 +226,8 @@ public class GiraffeCat {
     public void render(Graphics g) {
         cc.draw(g);
         sprite.draw(g,
-                cc.getX() - sprite.getCurrentFrame().getWidth() / 4,
-                cc.getY() - sprite.getCurrentFrame().getHeight() / 4);
+                cc.getRenderX() - sprite.getCurrentFrame().getWidth() / 4,
+                cc.getRenderY() - sprite.getCurrentFrame().getHeight() / 4);
         g.drawString(""+Gdx.input.isKeyPressed(Input.Keys.RIGHT), 0, 0);
     }
 }
