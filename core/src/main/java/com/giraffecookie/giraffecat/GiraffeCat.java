@@ -10,7 +10,7 @@ import org.mini2Dx.core.engine.geom.CollisionBox;
 import org.mini2Dx.core.graphics.Animation;
 import org.mini2Dx.core.graphics.Graphics;
 
-public class GiraffeCat {
+public class GiraffeCat implements Pausable, Renderable, Updatable {
 
     enum JumpState {
         JUMPING,
@@ -55,6 +55,7 @@ public class GiraffeCat {
     float runAcc = RUNACC;
     float friction = FRICTION;
     long jsTime;
+    boolean paused;
 
     public GiraffeCat() {
         playerFacingDirection = new Vector2();
@@ -95,6 +96,7 @@ public class GiraffeCat {
         facing = Facing.RIGHT;
         js = JumpState.FALLING;
         rs = RunState.STILL;
+        paused = false;
         init();
     }
 
@@ -106,69 +108,79 @@ public class GiraffeCat {
 
 
     public void update(float delta) {
-        //Gravity
-        addForce(0, Constants.GRAVITY * delta);
+        if (!paused) {
+            //Gravity
+            addForce(0, Constants.GRAVITY * delta);
 
-        //jump state
-        if (js != JumpState.JUMPING) {
-            js = JumpState.FALLING;
-        }
-
-        //run state
-        rs = RunState.STILL;
-
-        //landing on the "ground"
-        if (cc.getY() + cc.getHeight() > GiraffeCatGame.MODEL_HEIGHT) {
-            js = JumpState.GROUNDED;
-            cc.setY(GiraffeCatGame.MODEL_HEIGHT - cc.getHeight());
-            physics.setVelocityY(0);
-        }
-
-        //input
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            switch (js) {
-                case GROUNDED:
-                    startJump();
-                    break;
-                case JUMPING:
-                    continueJump();
-                    break;
-                case FALLING:
-                    break;
+            //jump state
+            if (js != JumpState.JUMPING) {
+                js = JumpState.FALLING;
             }
-        } else {
-            endJump();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            moveLeft(delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            moveRight(delta);
-        }
-        if (rs == RunState.STILL){
-            if (js == JumpState.GROUNDED) {
-                switch (facing) {
-                    case LEFT:
-                        sprite = standingLeft;
+
+            //run state
+            rs = RunState.STILL;
+
+            //landing on the "ground"
+            if (cc.getY() + cc.getHeight() > GiraffeCatGame.MODEL_HEIGHT) {
+                js = JumpState.GROUNDED;
+                cc.setY(GiraffeCatGame.MODEL_HEIGHT - cc.getHeight());
+                physics.setVelocityY(0);
+            }
+
+            //input
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                switch (js) {
+                    case GROUNDED:
+                        startJump();
                         break;
-                    case RIGHT:
-                        sprite = standingRight;
+                    case JUMPING:
+                        continueJump();
+                        break;
+                    case FALLING:
                         break;
                 }
+            } else {
+                endJump();
             }
-        }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                moveLeft(delta);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                moveRight(delta);
+            }
+            if (rs == RunState.STILL) {
+                if (js == JumpState.GROUNDED) {
+                    switch (facing) {
+                        case LEFT:
+                            sprite = standingLeft;
+                            break;
+                        case RIGHT:
+                            sprite = standingRight;
+                            break;
+                    }
+                }
+            }
 
-        //x-axis friction
-        if (physics.velocity.x != 0f)
-            if (Math.abs(Math.signum(physics.velocity.x)*friction*delta) > Math.abs(physics.velocity.x))
-                physics.velocity.x = 0;
-            else
-                addForce(-1*Math.signum(physics.velocity.x)*friction*delta, 0);
-        if (Math.abs(physics.velocity.x) > MAX_VELOCITY_X){
-            physics.velocity.x = Math.signum(physics.velocity.x)*MAX_VELOCITY_X;
+            //x-axis friction
+            if (physics.velocity.x != 0f)
+                if (Math.abs(Math.signum(physics.velocity.x) * friction * delta) > Math.abs(physics.velocity.x))
+                    physics.velocity.x = 0;
+                else
+                    addForce(-1 * Math.signum(physics.velocity.x) * friction * delta, 0);
+            if (Math.abs(physics.velocity.x) > MAX_VELOCITY_X) {
+                physics.velocity.x = Math.signum(physics.velocity.x) * MAX_VELOCITY_X;
+            }
+            physics.update(delta);
+            sprite.update(delta);
         }
-        physics.update(delta);
-        sprite.update(delta);
+    }
+
+    public void pause(){
+        paused = true;
+    }
+
+    public void play(){
+        paused = false;
     }
 
     private void startJump() {
@@ -217,6 +229,9 @@ public class GiraffeCat {
                 }
                 break;
             case FALLING:
+                if (facing == Facing.RIGHT) {
+                    sprite = jumpingLeft;
+                }
                 break;
             case GROUNDED:
                 sprite = runningLeft;
@@ -239,6 +254,9 @@ public class GiraffeCat {
                 }
                 break;
             case FALLING:
+                if (facing == Facing.LEFT) {
+                    sprite = jumpingRight;
+                }
                 break;
             case GROUNDED:
                 sprite = runningRight;

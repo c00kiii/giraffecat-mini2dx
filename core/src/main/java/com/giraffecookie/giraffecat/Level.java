@@ -4,20 +4,50 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import org.mini2Dx.core.graphics.Graphics;
 
-public class Level {
+import java.util.ArrayDeque;
 
-    GiraffeCat gfc;
+public class Level implements Updatable, Renderable, Pausable{
+
+    ArrayDeque<Pausable> pq;
+    ArrayDeque<Renderable> rq;
+    ArrayDeque<Updatable> uq;
 
     public Level() {
-        gfc = new GiraffeCat();
+        pq = new ArrayDeque<Pausable>();
+        rq = new ArrayDeque<Renderable>();
+        uq = new ArrayDeque<Updatable>();
     }
 
     public void update(float delta) {
-        gfc.update(delta);
+        for (Updatable u : uq)
+            u.update(delta);
     }
 
     public void render(Graphics g) {
-        gfc.render(g);
+        for (Renderable r : rq)
+            r.render(g);
+    }
+
+    public void pause(){
+        for (Pausable p : pq)
+            p.pause();
+    }
+
+    public void play(){
+        for (Pausable p : pq)
+            p.play();
+    }
+
+    public void addObject(Object o){
+        if (o instanceof Pausable){
+            pq.add((Pausable)o);
+        }
+        if (o instanceof Renderable){
+            rq.add((Renderable)o);
+        }
+        if (o instanceof Updatable){
+            uq.add((Updatable)o);
+        }
     }
 
 }

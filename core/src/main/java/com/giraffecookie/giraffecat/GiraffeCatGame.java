@@ -8,19 +8,18 @@ import org.mini2Dx.core.graphics.Graphics;
 
 public class GiraffeCatGame extends BasicGame {
 
-    public static final String TAG = GiraffeCatGame.class.getName();
-	public static final String GAME_IDENTIFIER = "com.giraffecookie.giraffecat";
-	public static final int MODEL_WIDTH = 240;
-    public static final int MODEL_HEIGHT = 135;
-
-	private Texture texture;
+    static final String TAG = GiraffeCatGame.class.getName();
+	static final String GAME_IDENTIFIER = "com.giraffecookie.giraffecat";
+	static final int MODEL_WIDTH = 285;
+    static final int MODEL_HEIGHT = 162;
 
 	Level level;
 
 	@Override
     public void initialise() {
-    	texture = new Texture(ImgPath.MINI2DX);
     	level = new Level();
+    	level.addObject(new GiraffeCat());
+    	level.addObject(new Platform(50, 50, 64,64));
     }
     
     @Override
@@ -34,7 +33,6 @@ public class GiraffeCatGame extends BasicGame {
     
     @Override
     public void render(Graphics g) {
-		g.drawTexture(texture, 0f, 0f);
 		level.render(g);
     }
 

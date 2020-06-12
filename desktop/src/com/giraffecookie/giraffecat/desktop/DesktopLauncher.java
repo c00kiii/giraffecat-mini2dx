@@ -11,8 +11,8 @@ public class DesktopLauncher {
 		DesktopMini2DxConfig config = new DesktopMini2DxConfig(GiraffeCatGame.GAME_IDENTIFIER);
 		config.vSyncEnabled = false;
 		config.fullscreen = false;
-		config.width = 640;
-		config.height = 360;
+		config.width = 1600;
+		config.height = 900;
 
 		new DesktopMini2DxGame(new GiraffeCatGame(), config);
 	}
