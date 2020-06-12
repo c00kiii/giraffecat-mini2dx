@@ -8,10 +8,10 @@ import org.mini2Dx.core.graphics.Graphics;
 
 public class GiraffeCatGame extends BasicGame {
 
-    static final String TAG = GiraffeCatGame.class.getName();
-	static final String GAME_IDENTIFIER = "com.giraffecookie.giraffecat";
-	static final int MODEL_WIDTH = 285;
-    static final int MODEL_HEIGHT = 162;
+    public static final String TAG = GiraffeCatGame.class.getName();
+	public static final String GAME_IDENTIFIER = "com.giraffecookie.giraffecat";
+	public static final int MODEL_WIDTH = 285;
+    public static final int MODEL_HEIGHT = 162;
 
 	Level level;
 

@@ -20,7 +20,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '0.0.5'
+    version = '0.0.6'
     ext {
         appName = 'GiraffeCat'
         mini2DxVersion = '1.9.10'

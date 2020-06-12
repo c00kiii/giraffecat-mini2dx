@@ -1,31 +1,31 @@
 package com.giraffecookie.giraffecat;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
 import org.mini2Dx.core.graphics.Graphics;
+import org.mini2Dx.core.graphics.TextureRegion;
 
-public class Platform {
-    float top;
-    float bottom;
-    float left;
-    float right;
+public class Platform implements Renderable {
+
+    float x;
+    float y;
+    float width;
+    float height;
 
 
-    public Platform(float left, float top, float width, float height) {
-        this.top = top;
-        this.bottom = top - height;
-        this.left = left;
-        this.right = left + width;
+    public Platform(float x, float y, float width, float height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     public void render(Graphics g) {
 
-        float width = right - left;
-        float height = top - bottom;
-
         g.setColor(Color.BLUE);
-        g.drawRect(left, bottom, width, height);
-
+        g.drawRect(x, y, width, height);
     }
 
 }
