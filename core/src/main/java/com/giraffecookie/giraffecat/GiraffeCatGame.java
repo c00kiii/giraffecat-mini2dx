@@ -19,7 +19,7 @@ public class GiraffeCatGame extends BasicGame {
     public void initialise() {
     	level = new Level();
     	level.addObject(new GiraffeCat());
-    	level.addObject(new Platform(50, 50, 64,64));
+    	level.addObject(new Platform(64, 162-96, 64,16));
     }
     
     @Override

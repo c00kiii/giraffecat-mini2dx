@@ -2,7 +2,6 @@ package com.giraffecookie.giraffecat;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -29,17 +28,25 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     }
 
     final static String TAG = GiraffeCat.class.getName();
-    final static float RUNACC = 20;
-    final static float FRICTION = 10f;
+    final static float RUNACC = 30;
+    final static float FRICTION = 20f;
+    static final float JUMP_SPEED = -6.2f;
     final static float JUMP_FRAME_DURATION = 0.1f;
     final static float RUN_FRAME_DURATION = 0.05f;
     final static float MAX_VELOCITY_X = 5;
+    final static float FEET_HEIGHT = 10;
+    final static float HEAD_HEIGHT = 40;
+    final static float FOOT_PADDING_R = 16;
+    final static float FOOT_PADDING_L = 22;
+    final static float HEAD_PADDING_R  = 34;
+    final static float HEAD_PADDING_L = 12;
 
     Facing facing;
     JumpState js;
     RunState rs;
 
-    CollisionBox cc;
+    CollisionBox cBox;
+    CollisionBox hBox;
     GFCPhysics physics;
     Vector2 accelerationVector;
     Vector2 playerFacingDirection;
@@ -54,44 +61,62 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
 
     float runAcc = RUNACC;
     float friction = FRICTION;
+    float footPadding = FOOT_PADDING_R;
+    float headPadding = HEAD_PADDING_R;
     long jsTime;
     boolean paused;
 
     public GiraffeCat() {
         playerFacingDirection = new Vector2();
         accelerationVector = new Vector2();
-        cc = new CollisionBox(120, 80, 36, 36);
-        physics = new GFCPhysics(cc);
+        cBox = new CollisionBox(120, 80, 26, 18);
+        hBox = new CollisionBox(
+                cBox.getRenderX() - footPadding + headPadding,
+                cBox.getRenderY() + cBox.getRenderHeight() - HEAD_HEIGHT,
+                18,
+                18
+        );
+        physics = new GFCPhysics(cBox);
         runningRight = Animator.loadSprite(
                 ImgPath.GFCRR,
                 64,
                 64,
                 RUN_FRAME_DURATION,
-                8);
+                8
+        );
         runningRight.setLooping(true);
         runningLeft = Animator.loadSprite(
                 ImgPath.GFCLR,
                 64,
                 64,
                 RUN_FRAME_DURATION,
-                8);
+                8
+        );
         runningLeft.setLooping(true);
         jumpingRight = Animator.loadSprite(
                 ImgPath.GFCJR,
                 64,
                 64,
                 JUMP_FRAME_DURATION,
-                3);
+                3
+        );
         jumpingLeft = Animator.loadSprite(
                 ImgPath.GFCJL,
                 64,
                 64,
                 JUMP_FRAME_DURATION,
-                3);
-        standingRight = new Animation();
-        standingRight.addFrame(runningRight.getFrame(3), 1);
-        standingLeft = new Animation();
-        standingLeft.addFrame(runningLeft.getFrame(3), 1);
+                3
+        );
+        standingRight = Animator.loadSprite(
+                ImgPath.GFCSR,
+                64,
+                64
+        );
+        standingLeft = Animator.loadSprite(
+                ImgPath.GFCSL,
+                64,
+                64
+        );
         sprite = jumpingRight;
         facing = Facing.RIGHT;
         js = JumpState.FALLING;
@@ -121,27 +146,26 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
             rs = RunState.STILL;
 
             //landing on the "ground"
-            if (cc.getY() + cc.getHeight() > GiraffeCatGame.MODEL_HEIGHT) {
+            if (cBox.getY() + cBox.getHeight() > GiraffeCatGame.MODEL_HEIGHT) {
                 js = JumpState.GROUNDED;
-                cc.setY(GiraffeCatGame.MODEL_HEIGHT - cc.getHeight());
+                cBox.setY(GiraffeCatGame.MODEL_HEIGHT - cBox.getHeight());
                 physics.setVelocityY(0);
             }
 
             //input
-            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                switch (js) {
-                    case GROUNDED:
+            switch (js) {
+                case GROUNDED:
+                    if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
                         startJump();
-                        break;
-                    case JUMPING:
-                        continueJump();
-                        break;
-                    case FALLING:
-                        break;
-                }
-            } else {
-                endJump();
+                    }
+                    break;
+                case JUMPING:
+                    continueJump();
+                    break;
+                case FALLING:
+                    break;
             }
+
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 moveLeft(delta);
             }
@@ -171,6 +195,10 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
                 physics.velocity.x = Math.signum(physics.velocity.x) * MAX_VELOCITY_X;
             }
             physics.update(delta);
+            hBox.forceTo(
+                    cBox.getRenderX() - footPadding + headPadding,
+                    cBox.getRenderY() + cBox.getRenderHeight() - HEAD_HEIGHT
+            );
             sprite.update(delta);
         }
     }
@@ -202,12 +230,8 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
 
     private void continueJump() {
         if (js == JumpState.JUMPING) {
-            float jumpDuration = MathUtils.nanoToSec * (TimeUtils.nanoTime() - jsTime);
-            if (jumpDuration < Constants.MAX_JUMP_DURATION) {
-                addForce(0, Constants.JUMP_SPEED);;
-            } else {
-                endJump();
-            }
+            addForce(0, JUMP_SPEED);;
+            endJump();
         }
     }
 
@@ -239,6 +263,8 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
         }
         facing = Facing.LEFT;
         rs = RunState.RUNNING;
+        footPadding = FOOT_PADDING_L;
+        headPadding = HEAD_PADDING_L;
         playerFacingDirection.set(-1, 0);
         addForce(playerFacingDirection.x * runAcc * delta, 0);
     }
@@ -264,6 +290,8 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
         }
         facing = Facing.RIGHT;
         rs = RunState.RUNNING;
+        footPadding = FOOT_PADDING_R;
+        headPadding = HEAD_PADDING_R;
         playerFacingDirection.set(1, 0);
         addForce(playerFacingDirection.x * runAcc * delta, 0);
     }
@@ -274,10 +302,13 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     }
 
     public void render(Graphics g) {
-        //cc.draw(g);
+        //g.drawString("", 0, 0);
+        cBox.draw(g);
+        hBox.draw(g);
         sprite.draw(g,
-                cc.getRenderX() - sprite.getCurrentFrame().getWidth() / 4,
-                cc.getRenderY() - sprite.getCurrentFrame().getHeight() / 4);
-        g.drawString(""+Gdx.input.isKeyPressed(Input.Keys.RIGHT), 0, 0);
+                cBox.getRenderX() - footPadding,
+                cBox.getRenderY() + FEET_HEIGHT - (sprite.getCurrentFrame().getHeight() - cBox.getRenderHeight())
+        );
+
     }
 }

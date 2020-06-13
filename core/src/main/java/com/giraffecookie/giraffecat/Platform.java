@@ -1,11 +1,8 @@
 package com.giraffecookie.giraffecat;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 
 import org.mini2Dx.core.graphics.Graphics;
-import org.mini2Dx.core.graphics.TextureRegion;
 
 public class Platform implements Renderable {
 

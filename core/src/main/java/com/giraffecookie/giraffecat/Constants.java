@@ -13,9 +13,7 @@ public class Constants {
 
     public static final float GFC_MOVE_SPEED = WORLD_SIZE / 2;
 
-    public static final float JUMP_SPEED = -.5f;
-
     public static final float MAX_JUMP_DURATION = .10f;
 
-    public static final float GRAVITY = 5;
+    public static final float GRAVITY = 12;
 }
