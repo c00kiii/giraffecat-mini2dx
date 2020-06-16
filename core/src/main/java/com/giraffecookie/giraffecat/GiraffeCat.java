@@ -9,6 +9,8 @@ import org.mini2Dx.core.engine.geom.CollisionBox;
 import org.mini2Dx.core.graphics.Animation;
 import org.mini2Dx.core.graphics.Graphics;
 
+import java.util.ArrayDeque;
+
 public class GiraffeCat implements Pausable, Renderable, Updatable {
 
     enum JumpState {
@@ -40,6 +42,7 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     final static float FOOT_PADDING_L = 22;
     final static float HEAD_PADDING_R  = 34;
     final static float HEAD_PADDING_L = 12;
+    final static float COLLISION_THRESHOLD = 1;
 
     Facing facing;
     JumpState js;
@@ -59,14 +62,18 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     Animation standingLeft;
     Animation sprite;
 
+    ArrayDeque<Platform> platforms;
+
     float runAcc = RUNACC;
     float friction = FRICTION;
     float footPadding = FOOT_PADDING_R;
     float headPadding = HEAD_PADDING_R;
     long jsTime;
     boolean paused;
+    boolean aboveSolid;
 
-    public GiraffeCat() {
+    public GiraffeCat(ArrayDeque<Platform> platforms) {
+        this.platforms = platforms;
         playerFacingDirection = new Vector2();
         accelerationVector = new Vector2();
         cBox = new CollisionBox(120, 80, 26, 18);
@@ -122,6 +129,7 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
         js = JumpState.FALLING;
         rs = RunState.STILL;
         paused = false;
+        aboveSolid = false;
         init();
     }
 
@@ -134,13 +142,22 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
 
     public void update(float delta) {
         if (!paused) {
+            aboveSolid = false;
+            for (Platform p : platforms)
+                if (cBox.intersects(p.cb))
+                    if (cBox.getY() + cBox.getHeight() > p.cb.getRenderY()
+                            && cBox.getY() + cBox.getHeight() < p.cb.getRenderY() + COLLISION_THRESHOLD){
+                        aboveSolid = true;
+                        js = JumpState.GROUNDED;
+                        cBox.setY(p.cb.getRenderY() - cBox.getHeight());
+                        physics.setVelocityY(0);
+                    }
+            if (!aboveSolid)
+                if (js == JumpState.GROUNDED)
+                    js = JumpState.FALLING;
             //Gravity
-            addForce(0, Constants.GRAVITY * delta);
-
-            //jump state
-            if (js != JumpState.JUMPING) {
-                js = JumpState.FALLING;
-            }
+            if (js != JumpState.GROUNDED)
+                addForce(0, Constants.GRAVITY * delta);
 
             //run state
             rs = RunState.STILL;
@@ -194,7 +211,13 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
             if (Math.abs(physics.velocity.x) > MAX_VELOCITY_X) {
                 physics.velocity.x = Math.signum(physics.velocity.x) * MAX_VELOCITY_X;
             }
+
+            //update physics
             physics.update(delta);
+
+
+
+            //update head box position
             hBox.forceTo(
                     cBox.getRenderX() - footPadding + headPadding,
                     cBox.getRenderY() + cBox.getRenderHeight() - HEAD_HEIGHT
@@ -302,7 +325,7 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     }
 
     public void render(Graphics g) {
-        //g.drawString("", 0, 0);
+        //g.drawString(""+aboveSolid, 0, 0);
         cBox.draw(g);
         hBox.draw(g);
         sprite.draw(g,

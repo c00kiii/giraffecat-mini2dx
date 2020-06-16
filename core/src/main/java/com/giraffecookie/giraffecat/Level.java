@@ -1,5 +1,6 @@
 package com.giraffecookie.giraffecat;
 
+import com.badlogic.gdx.ai.utils.Collision;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import org.mini2Dx.core.graphics.Graphics;
@@ -11,11 +12,13 @@ public class Level implements Updatable, Renderable, Pausable{
     ArrayDeque<Pausable> pq;
     ArrayDeque<Renderable> rq;
     ArrayDeque<Updatable> uq;
+    ArrayDeque<Platform> platforms;
 
     public Level() {
         pq = new ArrayDeque<Pausable>();
         rq = new ArrayDeque<Renderable>();
         uq = new ArrayDeque<Updatable>();
+        platforms = new ArrayDeque<Platform>();
     }
 
     public void update(float delta) {
@@ -47,6 +50,9 @@ public class Level implements Updatable, Renderable, Pausable{
         }
         if (o instanceof Updatable){
             uq.add((Updatable)o);
+        }
+        if (o instanceof Platform){
+            platforms.add((Platform)o);
         }
     }
 
