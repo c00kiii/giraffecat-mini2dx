@@ -15,7 +15,10 @@ public class Platform implements Solid, Renderable {
 
     public void render(Graphics g) {
         g.setColor(Color.BLUE);
-        cb.draw(g);
+        g.drawRect(cb.getRenderX()-Camera.cc.getRenderX(),
+                cb.getRenderY()-Camera.cc.getRenderY(),
+                cb.getRenderWidth(),
+                cb.getRenderHeight());
     }
 
 }
