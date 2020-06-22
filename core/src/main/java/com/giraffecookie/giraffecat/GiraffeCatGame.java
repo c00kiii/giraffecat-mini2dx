@@ -14,13 +14,16 @@ public class GiraffeCatGame extends BasicGame {
     public static final int MODEL_HEIGHT = 162;
 
 	Level level;
+	GiraffeCat gfc;
 
 	@Override
     public void initialise() {
     	level = new Level();
-    	level.addObject(new GiraffeCat(level.platforms));
+    	gfc = new GiraffeCat(level.platforms);
+    	level.addObject(gfc);
     	level.addObject(new Platform(64, 162-96, 64,16));
     	level.addObject(new CameraController());
+    	level.addObject(new CameraWindow(gfc));
     }
     
     @Override

@@ -327,13 +327,19 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     public void render(Graphics g) {
         //g.drawString(""+aboveSolid, 0, 0);
         //cBox.draw(g);
-        g.drawRect(cBox.getRenderX()-Camera.cc.getRenderX(), cBox.getRenderY()-Camera.cc.getRenderY(), cBox.getRenderWidth(), cBox.getRenderHeight());
+        g.drawRect(cBox.getRenderX()-Camera.cc.getRenderX(),
+                cBox.getRenderY()-Camera.cc.getRenderY(),
+                cBox.getRenderWidth(),
+                cBox.getRenderHeight());
         //hBox.draw(g);
-        g.drawRect(hBox.getRenderX()-Camera.cc.getRenderX(), hBox.getRenderY()-Camera.cc.getRenderY(), hBox.getRenderWidth(), hBox.getRenderHeight());
+        g.drawRect(hBox.getRenderX()-Camera.cc.getRenderX(),
+                hBox.getRenderY()-Camera.cc.getRenderY(),
+                hBox.getRenderWidth(),
+                hBox.getRenderHeight());
         sprite.draw(g,
                 cBox.getRenderX() - Camera.cc.getRenderX() - footPadding,
-                cBox.getRenderY() - Camera.cc.getRenderY() + FEET_HEIGHT - (sprite.getCurrentFrame().getHeight() - cBox.getRenderHeight())
+                cBox.getRenderY() - Camera.cc.getRenderY() + FEET_HEIGHT
+                        - (sprite.getCurrentFrame().getHeight() - cBox.getRenderHeight())
         );
-
     }
 }
