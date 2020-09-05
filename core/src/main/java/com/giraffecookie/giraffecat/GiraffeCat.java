@@ -42,12 +42,13 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     final static float FOOT_PADDING_L = 22;
     final static float HEAD_PADDING_R  = 34;
     final static float HEAD_PADDING_L = 12;
-    final static float COLLISION_THRESHOLD = 1;
+    final static float COLLISION_THRESHOLD = 8;
 
     Facing facing;
     JumpState js;
     RunState rs;
 
+    CollisionBox boxHelper;
     CollisionBox cBox;
     CollisionBox hBox;
     GFCPhysics physics;
@@ -68,6 +69,7 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     float friction = FRICTION;
     float footPadding = FOOT_PADDING_R;
     float headPadding = HEAD_PADDING_R;
+    float collisionThreshold = 1;
     long jsTime;
     boolean paused;
     boolean aboveSolid;
@@ -83,6 +85,7 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
                 18,
                 18
         );
+        boxHelper = new CollisionBox(120, 80, 26, 18);
         physics = new GFCPhysics(cBox);
         runningRight = Animator.loadSprite(
                 ImgPath.GFCRR,
@@ -143,15 +146,19 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
     public void update(float delta) {
         if (!paused) {
             aboveSolid = false;
+            if (js == JumpState.JUMPING) collisionThreshold = -1;
+            else if (js == JumpState.FALLING) collisionThreshold = 8;
+            boxHelper.forceTo(cBox.getX()+physics.velocity.x, cBox.getY()+physics.velocity.y);
             for (Platform p : platforms)
-                if (cBox.intersects(p.cb))
-                    if (cBox.getY() + cBox.getHeight() > p.cb.getRenderY()
-                            && cBox.getY() + cBox.getHeight() < p.cb.getRenderY() + COLLISION_THRESHOLD){
+                if (boxHelper.intersects(p.cb))
+                    if (boxHelper.getY() + boxHelper.getHeight() > p.cb.getRenderY()
+                            && boxHelper.getY() + boxHelper.getHeight() < p.cb.getRenderY() + collisionThreshold){
                         aboveSolid = true;
                         js = JumpState.GROUNDED;
                         cBox.setY(p.cb.getRenderY() - cBox.getHeight());
                         physics.setVelocityY(0);
                     }
+
             if (!aboveSolid)
                 if (js == JumpState.GROUNDED)
                     js = JumpState.FALLING;
@@ -211,6 +218,8 @@ public class GiraffeCat implements Pausable, Renderable, Updatable {
             if (Math.abs(physics.velocity.x) > MAX_VELOCITY_X) {
                 physics.velocity.x = Math.signum(physics.velocity.x) * MAX_VELOCITY_X;
             }
+
+
 
             //update physics
             physics.update(delta);

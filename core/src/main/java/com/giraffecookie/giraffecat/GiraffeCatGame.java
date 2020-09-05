@@ -22,8 +22,8 @@ public class GiraffeCatGame extends BasicGame {
     	gfc = new GiraffeCat(level.platforms);
     	level.addObject(gfc);
     	level.addObject(new Platform(64, 162-96, 64,16));
-    	level.addObject(new CameraController());
-    	level.addObject(new CameraWindow(gfc));
+    	//level.addObject(new CameraController());
+    	//level.addObject(new CameraWindow(gfc));
     }
     
     @Override

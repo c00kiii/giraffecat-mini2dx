@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath 'org.mini2Dx:parcl:1.6.1'
         classpath 'org.mini2Dx:butler:1.1.3'
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.7'
         classpath 'com.badlogicgames.gdx:gdx-tools:1.9.8'
     }
